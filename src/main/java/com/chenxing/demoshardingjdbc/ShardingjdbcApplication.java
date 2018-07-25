@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DemoshardingjdbcApplication {
+public class ShardingjdbcApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DemoshardingjdbcApplication.class, args);
+		SpringApplication.run(ShardingjdbcApplication.class, args);
 	}
 }

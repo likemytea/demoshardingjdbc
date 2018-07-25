@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chenxing.demoshardingjdbc.service.Test01s;
+import com.chenxing.demoshardingjdbc.service.ShardingService;
 
 /**
  * @author liuxing
  */
 @RestController
-public class HiController {
+public class ShardingController {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	Test01s t;
+	ShardingService t;
 
 	@RequestMapping(value = "/tt", method = RequestMethod.GET)
 	public String tt(@RequestParam String id, @RequestParam String name) {

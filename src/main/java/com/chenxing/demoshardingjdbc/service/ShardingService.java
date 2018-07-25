@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.chenxing.demoshardingjdbc.dao.Test01Dao;
 
 @Service
-public class Test01s {
+public class ShardingService {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	private Test01Dao test01Dao;
