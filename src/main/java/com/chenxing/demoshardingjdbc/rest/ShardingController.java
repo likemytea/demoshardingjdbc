@@ -3,6 +3,9 @@
  */
 package com.chenxing.demoshardingjdbc.rest;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,7 @@ public class ShardingController {
 
 	@RequestMapping(value = "/saveorder", method = RequestMethod.GET)
 	public String tt(@RequestParam String orderid, @RequestParam String userid, @RequestParam String orderstatus) {
+		getip();
 		long start = System.currentTimeMillis();
 		int res = t.saveOrder(orderid, userid, orderstatus);
 		long end = System.currentTimeMillis();
@@ -45,4 +49,13 @@ public class ShardingController {
 
 	}
 
+	private void getip() {
+		try {
+			InetAddress address = InetAddress.getLocalHost();
+			log.info("IP:" + address.getHostAddress());
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

@@ -50,7 +50,7 @@ public class Test01Dao {
 	}
 
 	public void createtable() {
-		String sql = "CREATE TABLE `t_order` (`user_id` int(11) DEFAULT NULL,`order_id` int(11) NOT NULL,`status` int(11) DEFAULT NULL,PRIMARY KEY (`order_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+		String sql = "CREATE TABLE IF NOT EXISTS `t_order` (`user_id` int(11) DEFAULT NULL,`order_id` int(11) NOT NULL,`status` int(11) DEFAULT NULL,PRIMARY KEY (`order_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 		
 		myjdbcTemplate.execute(sql);
 	}
