@@ -1,7 +1,5 @@
 package com.chenxing.demoshardingjdbc.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -45,33 +43,16 @@ public class Test01Dao {
 	}
 
 	public int saveOrder(String orderid, String userid, String orderStatus) {
-		// Connection conn = null;
-		// try {
-		// conn = myjdbcTemplate.getDataSource().getConnection();
-		// } catch (SQLException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// test(conn);
 		String sql = "insert into t_order (order_id,user_id,status) VALUES(?,?,?)";
 		int rs = myjdbcTemplate.update(sql, Integer.parseInt(orderid), Integer.parseInt(userid),
 				Integer.parseInt(orderStatus));
 		return 0;
 	}
 
-	private void test(Connection conn) {
-		String sql = "insert into t_order (order_id,user_id,status) VALUES(?,?,?)";
-		try {
-			PreparedStatement preparedStatement = conn.prepareStatement(sql);
-			preparedStatement.setInt(1, 10);
-			preparedStatement.setInt(2, 15);
-			preparedStatement.setInt(3, 7);
-			boolean res = preparedStatement.execute();
-			log.info("res:" + res);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void createtable() {
+		String sql = "CREATE TABLE `t_order` (`user_id` int(11) DEFAULT NULL,`order_id` int(11) NOT NULL,`status` int(11) DEFAULT NULL,PRIMARY KEY (`order_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+		
+		myjdbcTemplate.execute(sql);
 	}
 
 	public int findMessage(String id, String name, int currentpage, int pagesize) {

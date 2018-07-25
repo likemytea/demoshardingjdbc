@@ -36,4 +36,10 @@ public class ShardingService {
 
 		return count;
 	}
+
+	public void createTable1() {
+		log.info("create table ...");
+		test01Dao.createtable();
+	}
+
 }
