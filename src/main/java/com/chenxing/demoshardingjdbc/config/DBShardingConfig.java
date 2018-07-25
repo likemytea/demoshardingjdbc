@@ -22,12 +22,13 @@ import io.shardingsphere.core.api.config.ShardingRuleConfiguration;
 import io.shardingsphere.core.api.config.TableRuleConfiguration;
 import io.shardingsphere.core.api.config.strategy.InlineShardingStrategyConfiguration;
 
-/**  
-* Description:
-* @author liuxing
-* @date 2018年7月23日  
-* @version 1.0  
-*/
+/**
+ * Description:
+ * 
+ * @author liuxing
+ * @date 2018年7月23日
+ * @version 1.0
+ */
 @Configuration
 public class DBShardingConfig {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
