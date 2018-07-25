@@ -26,7 +26,7 @@ import io.shardingsphere.core.api.config.strategy.InlineShardingStrategyConfigur
  * Description:
  * 
  * @author liuxing
- * @date 2018年7月23日
+ * @date 2018年7月23日aaa
  * @version 1.0
  */
 @Configuration
