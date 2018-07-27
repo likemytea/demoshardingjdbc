@@ -3,9 +3,6 @@
  */
 package com.chenxing.demoshardingjdbc.rest;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.chenxing.common.distributedKey.PrimarykeyGenerated;
 import com.chenxing.demoshardingjdbc.service.ShardingService;
 
 /**
@@ -39,23 +37,14 @@ public class ShardingController {
 	}
 
 	@RequestMapping(value = "/saveorder", method = RequestMethod.GET)
-	public String tt(@RequestParam String orderid, @RequestParam String userid, @RequestParam String orderstatus) {
-		getip();
+	public String saveorder(@RequestParam String userid, @RequestParam String orderstatus) {
+
 		long start = System.currentTimeMillis();
-		int res = t.saveOrder(orderid, userid, orderstatus);
+		int res = t.saveOrder(Long.parseLong(PrimarykeyGenerated.generateId(true)), Long.parseLong(userid),
+				Long.parseLong(orderstatus));
 		long end = System.currentTimeMillis();
 		log.info("cost time =============" + String.valueOf(end - start) + "毫秒！");
 		return res + "";
 
-	}
-
-	private void getip() {
-		try {
-			InetAddress address = InetAddress.getLocalHost();
-			log.info("IP:" + address.getHostAddress());
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

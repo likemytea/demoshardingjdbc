@@ -42,15 +42,14 @@ public class Test01Dao {
 		return rs;
 	}
 
-	public int saveOrder(String orderid, String userid, String orderStatus) {
+	public int saveOrder(long orderid, long userid, long orderStatus) {
 		String sql = "insert into t_order (order_id,user_id,status) VALUES(?,?,?)";
-		int rs = myjdbcTemplate.update(sql, Integer.parseInt(orderid), Integer.parseInt(userid),
-				Integer.parseInt(orderStatus));
+		int rs = myjdbcTemplate.update(sql, orderid, userid, orderStatus);
 		return 0;
 	}
 
 	public void createtable() {
-		String sql = "CREATE TABLE IF NOT EXISTS `t_order` (`user_id` int(11) DEFAULT NULL,`order_id` int(11) NOT NULL,`status` int(11) DEFAULT NULL,PRIMARY KEY (`order_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+		String sql = "CREATE TABLE IF NOT EXISTS `t_order` (`user_id` bigint(20) DEFAULT NULL,`order_id` bigint(20) NOT NULL,`status` bigint(20) DEFAULT NULL,PRIMARY KEY (`order_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 		
 		myjdbcTemplate.execute(sql);
 	}

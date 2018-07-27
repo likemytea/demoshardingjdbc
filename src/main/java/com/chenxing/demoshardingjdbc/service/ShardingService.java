@@ -25,7 +25,7 @@ public class ShardingService {
 		return count;
 	}
 
-	public int saveOrder(String orderid, String userid, String orderStatus) {
+	public int saveOrder(long orderid, long userid, long orderStatus) {
 		log.info("test sharding insert。。。");
 		int count = 0;
 		try {
