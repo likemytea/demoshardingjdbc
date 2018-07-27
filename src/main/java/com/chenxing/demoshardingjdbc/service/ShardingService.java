@@ -42,4 +42,9 @@ public class ShardingService {
 		test01Dao.createtable();
 	}
 
+	public void getOrder() {
+		log.info("create table ...");
+		test01Dao.getOrder();
+	}
+
 }

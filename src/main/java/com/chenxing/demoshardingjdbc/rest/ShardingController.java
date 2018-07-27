@@ -47,4 +47,16 @@ public class ShardingController {
 		return res + "";
 
 	}
+
+	@RequestMapping(value = "/getorder", method = RequestMethod.GET)
+	public String getorder(@RequestParam String userid, @RequestParam String orderid) {
+
+		long start = System.currentTimeMillis();
+		t.getOrder();
+		long end = System.currentTimeMillis();
+		log.info("cost time =============" + String.valueOf(end - start) + "毫秒！");
+		return "success";
+
+	}
+
 }

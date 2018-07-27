@@ -31,6 +31,7 @@ public class InitializationRunner implements ApplicationRunner {
 	public void run(ApplicationArguments args) throws Exception {
 		log.info("创建sharding-jdbc数据节点（物理表）");
 		createtable();
+		// getOrder();
 	}
 
 	/**
@@ -40,5 +41,9 @@ public class InitializationRunner implements ApplicationRunner {
 	 */
 	private void createtable() {
 		t.createTable1();
+	}
+
+	private void getOrder() {
+		t.getOrder();
 	}
 }

@@ -1,23 +1,24 @@
 package com.chenxing.demoshardingjdbc.config;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.chenxing.demoshardingjdbc.dao.base.MyJdbcTemplate;
+import com.google.common.collect.Lists;
 
 import io.shardingsphere.core.api.ShardingDataSourceFactory;
+import io.shardingsphere.core.api.config.MasterSlaveRuleConfiguration;
 import io.shardingsphere.core.api.config.ShardingRuleConfiguration;
 import io.shardingsphere.core.api.config.TableRuleConfiguration;
 import io.shardingsphere.core.api.config.strategy.InlineShardingStrategyConfiguration;
@@ -31,7 +32,6 @@ import io.shardingsphere.core.api.config.strategy.InlineShardingStrategyConfigur
  */
 @Configuration
 public class DBShardingConfig {
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public DruidDataSource createDefaultDruidDataSource() {
 		DruidDataSource druidDataSource = new DruidDataSource();
@@ -50,32 +50,34 @@ public class DBShardingConfig {
 	}
 	@Bean(name = "shardingDataSource", destroyMethod = "close")
 	@Qualifier("shardingDataSource")
-	public DataSource getShardingDataSource() {
+	public DataSource getShardingDataSource() throws Exception {
 		// 配置真实数据源
-		Map<String, DataSource> dataSourceMap = new HashMap<>(3);
+		Map<String, DataSource> dataSourceMap = createDataSourceMap();
 
-		// 配置第一个数据源
-		DruidDataSource dataSource1 = createDefaultDruidDataSource();
-		dataSource1.setDriverClassName("com.mysql.jdbc.Driver");
-		dataSource1.setUrl("jdbc:mysql://172.16.31.43:3306/ds0?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
-		dataSource1.setUsername("liuxing");
-		dataSource1.setPassword("Liuxing009!");
-		dataSourceMap.put("ds0", dataSource1);
+		ShardingRuleConfiguration shardingRuleConfig = new ShardingRuleConfiguration();
+		shardingRuleConfig.getTableRuleConfigs().add(getTableRuleConfig());
 
-		// 配置第二个数据源
-		DruidDataSource dataSource2 = new DruidDataSource();
-		dataSource2.setDriverClassName("com.mysql.jdbc.Driver");
-		dataSource2.setUrl("jdbc:mysql://172.16.31.43:3306/ds1?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
-		dataSource2.setUsername("liuxing");
-		dataSource2.setPassword("Liuxing009!");
-		dataSourceMap.put("ds1", dataSource2);
+		// 配置读写分离
+		shardingRuleConfig.setMasterSlaveRuleConfigs(getMasterSlaveRuleConfiguration());
 
-		// 配置Order表规则
+		DataSource dataSource = null;
+		try {
+			dataSource = ShardingDataSourceFactory.createDataSource(dataSourceMap, shardingRuleConfig,
+					new HashMap<String, Object>(), new Properties());
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return dataSource;
+	}
+
+	// 配置分片规则
+	private TableRuleConfiguration getTableRuleConfig() {
+
 		TableRuleConfiguration orderTableRuleConfig = new TableRuleConfiguration();
 		orderTableRuleConfig.setLogicTable("t_order");
 
 		orderTableRuleConfig.setActualDataNodes("ds${0..1}.t_order_${0..1}");
-		// orderTableRuleConfig.setActualDataNodes("ds0.t_order_0,ds0.t_order_1,ds1.t_order_0,ds1.t_order_1,ds2.t_order_0,ds2.t_order_1");
 
 		// 配置分库策略（Groovy表达式配置db规则）
 		orderTableRuleConfig.setDatabaseShardingStrategyConfig(
@@ -84,23 +86,73 @@ public class DBShardingConfig {
 		// 配置分表策略（Groovy表达式配置表路由规则）
 		orderTableRuleConfig.setTableShardingStrategyConfig(
 				new InlineShardingStrategyConfiguration("order_id", "t_order_${order_id % 2}"));
+		return orderTableRuleConfig;
+	}
+	/** 读写分离规则配置 **/
+	public List<MasterSlaveRuleConfiguration> getMasterSlaveRuleConfiguration() throws SQLException {
 
-		// 配置分片规则
-		ShardingRuleConfiguration shardingRuleConfig = new ShardingRuleConfiguration();
-		shardingRuleConfig.getTableRuleConfigs().add(orderTableRuleConfig);
+		MasterSlaveRuleConfiguration masterSlaveRuleConfig1 = new MasterSlaveRuleConfiguration("ds0",
+				"ds0", Arrays.asList("ds0_slave0", "ds0_slave1"));
+		MasterSlaveRuleConfiguration masterSlaveRuleConfig2 = new MasterSlaveRuleConfiguration("ds1",
+				"ds1", Arrays.asList("ds1_slave0", "ds1_slave1"));
+		return Lists.newArrayList(masterSlaveRuleConfig1, masterSlaveRuleConfig2);
 
-		// 配置order_items表规则...
+	}
 
-		// 获取数据源对象
-		DataSource dataSource = null;
-		try {
-			dataSource = ShardingDataSourceFactory.createDataSource(dataSourceMap, shardingRuleConfig,
-					new ConcurrentHashMap(), new Properties());
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+	private DruidDataSource getDataSource(String dsname) throws Exception {
+		DruidDataSource ds = createDefaultDruidDataSource();
+		if ("ds0".equals(dsname)) {
+			ds.setDriverClassName("com.mysql.jdbc.Driver");
+			ds.setUrl("jdbc:mysql://172.16.31.43:3306/ds0?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
+			ds.setUsername("liuxing");
+			ds.setPassword("Liuxing009!");
+			return ds;
+		} else if ("ds0_slave0".equals(dsname)) {
+			ds.setDriverClassName("com.mysql.jdbc.Driver");
+			ds.setUrl("jdbc:mysql://172.16.31.43:3306/ds0_slave0?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
+			ds.setUsername("liuxing");
+			ds.setPassword("Liuxing009!");
+			return ds;
+		} else if ("ds0_slave1".equals(dsname)) {
+			ds.setDriverClassName("com.mysql.jdbc.Driver");
+			ds.setUrl("jdbc:mysql://172.16.31.43:3306/ds0_slave1?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
+			ds.setUsername("liuxing");
+			ds.setPassword("Liuxing009!");
+			return ds;
+		} else if ("ds1".equals(dsname)) {
+			ds.setDriverClassName("com.mysql.jdbc.Driver");
+			ds.setUrl("jdbc:mysql://172.16.31.43:3306/ds1?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
+			ds.setUsername("liuxing");
+			ds.setPassword("Liuxing009!");
+			return ds;
+		} else if ("ds1_slave0".equals(dsname)) {
+			ds.setDriverClassName("com.mysql.jdbc.Driver");
+			ds.setUrl("jdbc:mysql://172.16.31.43:3306/ds1_slave0?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
+			ds.setUsername("liuxing");
+			ds.setPassword("Liuxing009!");
+			return ds;
+		} else if ("ds1_slave1".equals(dsname)) {
+			ds.setDriverClassName("com.mysql.jdbc.Driver");
+			ds.setUrl("jdbc:mysql://172.16.31.43:3306/ds1_slave1?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
+			ds.setUsername("liuxing");
+			ds.setPassword("Liuxing009!");
+			return ds;
+		} else {
+			throw new Exception("did not discover this datasource name!");
 		}
-		return dataSource;
+	}
+
+	Map<String, DataSource> createDataSourceMap() throws Exception {
+		Map<String, DataSource> result = new HashMap<>();
+
+		result.put("ds0", getDataSource("ds0"));
+		result.put("ds0_slave0", getDataSource("ds0_slave0"));
+		result.put("ds0_slave1", getDataSource("ds0_slave1"));
+		result.put("ds1", getDataSource("ds1"));
+		result.put("ds1_slave0", getDataSource("ds1_slave0"));
+		result.put("ds1_slave1", getDataSource("ds1_slave1"));
+
+		return result;
 	}
 
 	@Bean(name = "myJdbcTemplatep1")
