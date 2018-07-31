@@ -3,6 +3,8 @@
  */
 package com.chenxing.demoshardingjdbc.rest;
 
+import java.sql.SQLException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,49 @@ public class ShardingController {
 
 		long start = System.currentTimeMillis();
 		t.getOrder();
+		long end = System.currentTimeMillis();
+		log.info("cost time =============" + String.valueOf(end - start) + "毫秒！");
+		return "success";
+
+	}
+
+	@RequestMapping(value = "/getUserAccountById", method = RequestMethod.GET)
+	public String getUserAccountById(@RequestParam String id) {
+
+		long start = System.currentTimeMillis();
+		t.getUserAccountById(id);
+		long end = System.currentTimeMillis();
+		log.info("cost time =============" + String.valueOf(end - start) + "毫秒！");
+		return "success";
+
+	}
+
+	@RequestMapping(value = "/saveAccount", method = RequestMethod.GET)
+	public String saveAccount(@RequestParam String id, @RequestParam String desc) {
+
+		long start = System.currentTimeMillis();
+		t.saveUserAccount(Long.parseLong(PrimarykeyGenerated.generateId(true)), 1000, desc);
+		long end = System.currentTimeMillis();
+		log.info("cost time =============" + String.valueOf(end - start) + "毫秒！");
+		return "success";
+
+	}
+
+	/**
+	 * 柔性事务test
+	 * 
+	 * @throws SQLException
+	 * @throws NumberFormatException
+	 * 
+	 */
+	@RequestMapping(value = "/testSoftTransaction", method = RequestMethod.GET)
+	public String testSoftTransaction(@RequestParam String id, @RequestParam String desc,
+			@RequestParam String orderstatus) throws NumberFormatException, SQLException {
+
+		long start = System.currentTimeMillis();
+		t.testSoftTransaction(Long.parseLong(PrimarykeyGenerated.generateId(true)), 10, desc,
+				Long.parseLong(PrimarykeyGenerated.generateId(true)),
+				9, Long.parseLong(orderstatus));
 		long end = System.currentTimeMillis();
 		log.info("cost time =============" + String.valueOf(end - start) + "毫秒！");
 		return "success";
